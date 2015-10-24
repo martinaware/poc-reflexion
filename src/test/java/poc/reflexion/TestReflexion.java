@@ -73,12 +73,14 @@ public class TestReflexion {
         assertEquals("The best country ever.", pays.getDescription());
     }
 
+    private final int NOMBRE_ESSAIS = 1000000;
+
     @Test
     public void performanceAvecReflexionTest() {
 
         LocalDateTime dateDebut = LocalDateTime.now();
 
-        for (int i=0; i<10000; i++) {
+        for (int i=0; i<NOMBRE_ESSAIS; i++) {
             Pays pays = traduireAvecReflexion(paysList.get("FR"), Locale.FRANCE);
             assertEquals("France", pays.getLibelle());
             assertEquals("Le plus beau des pays de tous les temps.", pays.getDescription());
@@ -107,7 +109,7 @@ public class TestReflexion {
 
         LocalDateTime dateDebut = LocalDateTime.now();
 
-        for (int i=0; i<10000; i++) {
+        for (int i=0; i<NOMBRE_ESSAIS; i++) {
             Pays pays = traduireAvecReflexionOptimise(paysList.get("FR"), Locale.FRANCE);
             assertEquals("France", pays.getLibelle());
             assertEquals("Le plus beau des pays de tous les temps.", pays.getDescription());
@@ -136,7 +138,7 @@ public class TestReflexion {
 
         LocalDateTime dateDebut = LocalDateTime.now();
 
-        for (int i=0; i<10000; i++) {
+        for (int i=0; i<NOMBRE_ESSAIS; i++) {
             Pays pays = traduireSansReflexion(paysList.get("FR"), Locale.FRANCE);
             assertEquals("France", pays.getLibelle());
             assertEquals("Le plus beau des pays de tous les temps.", pays.getDescription());
