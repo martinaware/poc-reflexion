@@ -103,6 +103,35 @@ public class TestReflexion {
     }
 
     @Test
+    public void performanceAvecReflexionOptimiseTest() {
+
+        LocalDateTime dateDebut = LocalDateTime.now();
+
+        for (int i=0; i<10000; i++) {
+            Pays pays = traduireAvecReflexionOptimise(paysList.get("FR"), Locale.FRANCE);
+            assertEquals("France", pays.getLibelle());
+            assertEquals("Le plus beau des pays de tous les temps.", pays.getDescription());
+
+            pays = traduireAvecReflexionOptimise(paysList.get("US"), Locale.FRANCE);
+            assertEquals("Etats-Unis", pays.getLibelle());
+            assertEquals("Le pays des burgers.", pays.getDescription());
+
+            pays = traduireAvecReflexionOptimise(paysList.get("FR"), Locale.US);
+            assertEquals("France", pays.getLibelle());
+            assertEquals("The country of wine.", pays.getDescription());
+
+            pays = traduireAvecReflexionOptimise(paysList.get("US"), Locale.US);
+            assertEquals("United States", pays.getLibelle());
+            assertEquals("The best country ever.", pays.getDescription());
+        }
+
+        LocalDateTime dateFin = LocalDateTime.now();
+        long duree = ChronoUnit.MILLIS.between(dateDebut, dateFin);
+
+        assertTrue("La durée est trop élevée : " + duree + " ms", duree < 0);
+    }
+
+    @Test
     public void performanceSansReflexionTest() {
 
         LocalDateTime dateDebut = LocalDateTime.now();
@@ -149,6 +178,45 @@ public class TestReflexion {
             }
         }
         return paysTraduit;
+    }
+
+    private HashMap<Class,ArrayList<Field>> fieldsMap = new HashMap<>();
+
+    private Pays traduireAvecReflexionOptimise(Pays pays, Locale locale) {
+
+        Pays paysTraduit = new Pays(pays.getCode(), pays.getLibelle(), pays.getDescription());
+        Field[] fields = pays.getClass().getDeclaredFields();
+
+        if (!fieldsMap.containsKey(Pays.class)){
+            fieldsMap.put(Pays.class, listerChampsTraductible(Pays.class));
+        }
+
+        for (Field field : fieldsMap.get(Pays.class)) {
+            try {
+                field.set(paysTraduit, traduirePropriete((String) field.get(pays), locale));
+            }
+            catch (IllegalAccessException exception) {
+                assertFalse("Le champ à traduire " + field.getName() + " n'est pas accessible",true);
+            }
+        }
+
+        return paysTraduit;
+    }
+
+    private ArrayList<Field> listerChampsTraductible(Class classe) {
+        ArrayList<Field> champsTraductibles = new ArrayList<>();
+        Field[] fields = classe.getDeclaredFields();
+
+        for (Field field : fields) {
+            Annotation annotation = field.getAnnotation(Traductible.class);
+
+            if (annotation != null) {
+                field.setAccessible(true);
+                champsTraductibles.add(field);
+            }
+        }
+
+        return champsTraductibles;
     }
 
     private Pays traduireSansReflexion(Pays pays, Locale locale) {
