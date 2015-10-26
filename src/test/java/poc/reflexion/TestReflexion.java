@@ -3,6 +3,8 @@ package poc.reflexion;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import poc.reflexion.annotation.Traductible;
 import poc.reflexion.dto.Pays;
 
@@ -26,6 +28,8 @@ public class TestReflexion {
 
     Map<String,Pays> paysList;
 
+    Logger logger;
+
     @Before
     public void setUp() {
         paysList = new HashMap<String,Pays>(){
@@ -33,6 +37,7 @@ public class TestReflexion {
                 put("FR", new Pays("FR", "Pays_libelle_1", "Pays_description_1"));
                 put("US", new Pays("US", "Pays_libelle_2", "Pays_description_2"));
             }};
+        logger = LoggerFactory.getLogger(TestReflexion.class);
     }
 
     @Test
@@ -73,7 +78,7 @@ public class TestReflexion {
         assertEquals("The best country ever.", pays.getDescription());
     }
 
-    private final int NOMBRE_ESSAIS = 1000000;
+    private final int NOMBRE_ESSAIS = 10000000;
 
     @Test
     public void performanceAvecReflexionTest() {
@@ -101,7 +106,9 @@ public class TestReflexion {
         LocalDateTime dateFin = LocalDateTime.now();
         long duree = ChronoUnit.MILLIS.between(dateDebut, dateFin);
 
-        assertTrue("La durée est trop élevée : " + duree + " ms", duree < 0);
+        logger.info("performanceAvecReflexionTest - Pour " + NOMBRE_ESSAIS + "essais, la durée est de : " + duree + " ms");
+
+        //assertTrue("Pour " + NOMBRE_ESSAIS + " essais, la durée est trop élevée : " + duree + " ms", duree < 0);
     }
 
     @Test
@@ -130,7 +137,9 @@ public class TestReflexion {
         LocalDateTime dateFin = LocalDateTime.now();
         long duree = ChronoUnit.MILLIS.between(dateDebut, dateFin);
 
-        assertTrue("La durée est trop élevée : " + duree + " ms", duree < 0);
+        logger.info("performanceAvecReflexionOptimiseTest - Pour " + NOMBRE_ESSAIS + "essais, la durée est de : " + duree + " ms");
+
+        //assertTrue("Pour " + NOMBRE_ESSAIS + " essais, la durée est trop élevée : " + duree + " ms", duree < 0);
     }
 
     @Test
@@ -159,7 +168,9 @@ public class TestReflexion {
         LocalDateTime dateFin = LocalDateTime.now();
         long duree = ChronoUnit.MILLIS.between(dateDebut, dateFin);
 
-        assertTrue("La durée est trop élevée : " + duree + " ms",duree < 0);
+        logger.info("performanceSansReflexionTest - Pour " + NOMBRE_ESSAIS + "essais, la durée est de : " + duree + " ms");
+
+        //assertTrue("Pour " + NOMBRE_ESSAIS + " essais, la durée est trop élevée : " + duree + " ms",duree < 0);
     }
 
     private Pays traduireAvecReflexion(Pays pays, Locale locale) {
@@ -187,7 +198,7 @@ public class TestReflexion {
     private Pays traduireAvecReflexionOptimise(Pays pays, Locale locale) {
 
         Pays paysTraduit = new Pays(pays.getCode(), pays.getLibelle(), pays.getDescription());
-        Field[] fields = pays.getClass().getDeclaredFields();
+        //Field[] fields = pays.getClass().getDeclaredFields();
 
         if (!fieldsMap.containsKey(Pays.class)){
             fieldsMap.put(Pays.class, listerChampsTraductible(Pays.class));
